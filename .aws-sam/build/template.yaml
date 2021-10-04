@@ -20,11 +20,16 @@ Resources:
         Variables:
           PARAM1: VALUE
       Events:
-        HelloWorld:
+        HelloWorldGet:
           Type: Api
           Properties:
             Path: /hello
             Method: get
+        HelloWorldPost:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: post
 Outputs:
   HelloWorldApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function

@@ -1,5 +1,10 @@
 package helloworld;
 
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,10 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.google.gson.*;
 
 /**
  * Handler for requests to Lambda function.
@@ -26,8 +28,20 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
                 .withHeaders(headers);
         try {
+            String stayto = "Nobody";
+            if (input != null) {
+                String rawbody = input.getBody();
+                Map<String,String> qmap = input.getQueryStringParameters();
+                if (rawbody != null) {
+                    Gson gson = new Gson();
+                    HelloJkmPostBody body = gson.fromJson(rawbody, HelloJkmPostBody.class);
+                    stayto = body.getSaytopost();
+                } else if (qmap != null) {
+                    stayto = qmap.getOrDefault("sayto", stayto);
+                }
+            }
             final String pageContents = this.getPageContents("https://checkip.amazonaws.com");
-            String output = String.format("{ \"message\": \"hello world\", \"location\": \"%s\" }", pageContents);
+            String output = String.format("{ \"message\": \"hello %s\", \"location\": \"%s\" }", stayto, pageContents);
 
             return response
                     .withStatusCode(200)
